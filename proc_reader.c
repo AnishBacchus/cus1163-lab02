@@ -25,8 +25,8 @@ int list_process_directories(void) {
     // TODO: If it's a number, print it as a PID and increment counter
 	
 	while((entry = readdir(dir)) != NULL){
-	if(is_number(entry)){
-	printf("PID: %s\n", entry);
+	if(is_number(entry->d_name)){
+	printf("PID: %d\n", *entry->d_name);
 	processCounter++;
        	}
 	}
@@ -74,13 +74,13 @@ int read_process_info(const char* pid) {
 
 	if(read_file_with_syscalls(filepath) == -1){
 	perror("Error reading");
-	return -1
+	return -1;
 	}
 
     printf("\n"); // Add extra newline for readability
 	printf("\n");
 
-    return filepath; // Replace with proper error handling
+    return 0; // Replace with proper error handling
 }
 
 int show_system_info(void) {
@@ -92,9 +92,10 @@ int show_system_info(void) {
     // TODO: Open /proc/cpuinfo using fopen() with "r" mode
     // TODO: Check if fopen() failed
 	
-	FILE *file = fopen(filename, "r");
+	FILE *file; 
+	file = fopen("/proc/cpuinfo","r");
 	
-	if(file == -1){
+	if(file == NULL){
 	perror("Failed opening");
 	return -1;
 	}
@@ -107,6 +108,7 @@ int show_system_info(void) {
 	char line[256];
 	while (fgets(line, sizeof(line), file) != NULL){
 	printf("%s", line);
+	line_count++;
 	}
 	fclose(file);
 
@@ -115,9 +117,9 @@ int show_system_info(void) {
     // TODO: Open /proc/meminfo using fopen() with "r" mode
     // TODO: Check if fopen() failed
 	
-	FILE *file = fopen(filename, "r");
+	 file = fopen("/proc/meminfo", "r");
 
-	if(file == -1){
+	if(file == NULL){
 	perror("Error opening");
 	return -1;
 	}
@@ -128,6 +130,7 @@ int show_system_info(void) {
 
 	while(fgets(line, sizeof(line), file) != NULL){
         printf("%s", line);
+	line_count++;
         }
         fclose(file);
 
@@ -152,10 +155,20 @@ void compare_file_methods(void) {
 
 int read_file_with_syscalls(const char* filename) {
     // TODO: Declare variables: file descriptor (int), buffer (char array), bytes_read (ssize_t)
+	int fd;
+	char buffer[1024];
+	ssize_t bytes_read;
+
 
     // TODO: Open the file using open() with O_RDONLY flag
-
     // TODO: Check if open() failed (fd == -1) and return -1
+
+	fd = open(filename, O_RDONLY);
+	
+	if(fd == -1){
+	perror("Error opening");
+	return -1;
+	}
 
     // TODO: Read the file in a loop using read()
     // TODO: Use sizeof(buffer) - 1 for buffer size to leave space for null terminator
@@ -163,11 +176,28 @@ int read_file_with_syscalls(const char* filename) {
     // TODO: Null-terminate the buffer after each read
     // TODO: Print each chunk of data read
 
+	while((bytes_read = read(fd, buffer, sizeof(buffer) - 1)) > 0){
+	buffer[bytes_read] = '\0';
+	printf("%s", buffer);
+	}
+	close(fd);
+
     // TODO: Handle read() errors (return value -1)
     // TODO: If read() fails, close the file and return -1
 
+	if (bytes_read  == -1){
+	perror("Error reading");
+	return -1;
+	}
+
+	
     // TODO: Close the file using close()
     // TODO: Check if close() failed
+
+	if(close(fd) == -1){
+	perror("Error closing");
+	return -1;
+	}
 
     return 0; // Replace with proper error handling
 }
@@ -175,16 +205,36 @@ int read_file_with_syscalls(const char* filename) {
 int read_file_with_library(const char* filename) {
     // TODO: Declare variables: FILE pointer, buffer (char array)
 
-    // TODO: Open the file using fopen() with "r" mode
+	FILE *pointer;
+	char buffer[1024];
 
+    // TODO: Open the file using fopen() with "r" mode
     // TODO: Check if fopen() failed and return -1
+
+	FILE *file = fopen(filename, "r");
+	
+	if(file == NULL){
+	perror("Failed opening");
+	return -1;
+	}
 
     // TODO: Read the file using fgets() in a loop
     // TODO: Continue until fgets() returns NULL
     // TODO: Print each line read
+	char line[256];
+	while (fgets(line, sizeof(line), file) != NULL){
+	printf("%s", line);
+	}
+	fclose(file);
+
 
     // TODO: Close the file using fclose()
     // TODO: Check if fclose() failed
+	
+	if(fclose(file) == -1){
+	perror("Error closing file");
+	return -1;
+	}
 
     return 0; // Replace with proper error handling
 }
@@ -193,12 +243,26 @@ int is_number(const char* str) {
     // TODO: Handle empty strings - check if str is NULL or empty
     // TODO: Return 0 for empty strings
 
+	if (str == NULL || *str == '\0'){
+	return 0;
+
     // TODO: Check if the string contains only digits
     // TODO: Loop through each character using a while loop
     // TODO: Use isdigit() function to check each character
     // TODO: If any character is not a digit, return 0
+	
+	while(*str !='\0'){
+	
+	for(int i = 0; i < strlen(str); i++){
 
-    // TODO: Return 1 if all characters are digits
+	if(!isDigit(str[i]){
+	return 0;
+	}else{
+	str++;
+	}
+	}
+	}
 
-    return 0; // Replace with actual implementation
+	return 1;
+  
 }
