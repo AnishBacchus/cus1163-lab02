@@ -26,18 +26,19 @@ int list_process_directories(void) {
 	
 	while((entry = readdir(dir)) != NULL){
 	if(is_number(entry->d_name)){
-	printf("PID: %d\n", *entry->d_name);
+	printf("PID: %-8s\n", entry->d_name);
 	processCounter++;
        	}
+
 	}
 
     // TODO: Close the directory using closedir()
     // TODO: Check if closedir() failed
 	
 	if(closedir(dir) == -1){
-	perror("Error closing\n");
-	return -1;
-	}
+        perror("Error closing\n");
+        return -1;
+        }
 
 
     // TODO: Print the total count of process directories found
