@@ -253,16 +253,13 @@ int is_number(const char* str) {
 	
 	while(*str !='\0'){
 	
-	for(int i = 0; i < strlen(str); i++){
-
-	if(!isDigit(str[i]){
-	return 0;
-	}else{
+	if(!isdigit(*str)){
+	return 0;;
+	}
 	str++;
 	}
-	}
-	}
+	
 
 	return 1;
-  
+	}  
 }
