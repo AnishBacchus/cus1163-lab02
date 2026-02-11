@@ -53,19 +53,34 @@ int read_process_info(const char* pid) {
 
     printf("\n--- Process Information for PID %s ---\n", pid);
 
+	snprintf(filepath, sizeof(filepath), "/proc/%s/status", pid);
+
     // TODO: Call read_file_with_syscalls() to read the status file
     // TODO: Check if the function succeeded
+	
+	if(read_file_with_syscalls(filepath) == -1){
+	perror("Error reading.");
+	return -1;
+	}
 
     // TODO: Create the path to /proc/[pid]/cmdline using snprintf()
+	
+	snprintf(filepath, sizeof(filepath), "proc/%s/cmdline", pid);
 
     printf("\n--- Command Line ---\n");
 
     // TODO: Call read_file_with_syscalls() to read the cmdline file
     // TODO: Check if the function succeeded
 
-    printf("\n"); // Add extra newline for readability
+	if(read_file_with_syscalls(filepath) == -1){
+	perror("Error reading");
+	return -1
+	}
 
-    return 0; // Replace with proper error handling
+    printf("\n"); // Add extra newline for readability
+	printf("\n");
+
+    return filepath; // Replace with proper error handling
 }
 
 int show_system_info(void) {
@@ -76,20 +91,46 @@ int show_system_info(void) {
 
     // TODO: Open /proc/cpuinfo using fopen() with "r" mode
     // TODO: Check if fopen() failed
+	
+	FILE *file = fopen(filename, "r");
+	
+	if(file == -1){
+	perror("Failed opening");
+	return -1;
+	}
 
     // TODO: Declare a char array for reading lines
     // TODO: Read lines using fgets() in a loop, limit to MAX_LINES
     // TODO: Print each line
     // TODO: Close the file using fclose()
 
+	char line[256];
+	while (fgets(line, sizeof(line), file) != NULL){
+	printf("%s", line);
+	}
+	fclose(file);
+
     printf("\n--- Memory Information (first %d lines) ---\n", MAX_LINES);
 
     // TODO: Open /proc/meminfo using fopen() with "r" mode
     // TODO: Check if fopen() failed
+	
+	FILE *file = fopen(filename, "r");
+
+	if(file == -1){
+	perror("Error opening");
+	return -1;
+	}
 
     // TODO: Read lines using fgets() in a loop, limit to MAX_LINES
     // TODO: Print each line
     // TODO: Close the file using fclose()
+
+	while(fgets(line, sizeof(line), file) != NULL){
+        printf("%s", line);
+        }
+        fclose(file);
+
 
     return 0; // Replace with proper error handling
 }
