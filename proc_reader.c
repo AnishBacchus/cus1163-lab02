@@ -3,9 +3,18 @@
 int list_process_directories(void) {
     // TODO: Open the /proc directory using opendir()
     // TODO: Check if opendir() failed and print error message
+	DIR *dir = opendir("/proc");
+	
+	if(dir == NULL){
+	perror("Error opening\n");
+	return -1;
+	}
 
     // TODO: Declare a struct dirent pointer for directory entries
     // TODO: Initialize process counter to 0
+	
+	struct dirent *entry;
+	int processCounter = 0;
 
     printf("Process directories in /proc:\n");
     printf("%-8s %-20s\n", "PID", "Type");
@@ -14,13 +23,27 @@ int list_process_directories(void) {
     // TODO: Read directory entries using readdir() in a loop
     // TODO: For each entry, check if the name is a number using is_number()
     // TODO: If it's a number, print it as a PID and increment counter
+	
+	while((entry = readdir(dir)) != NULL){
+	if(is_number(entry)){
+	printf("PID: %s\n", entry);
+	processCounter++;
+       	}
+	}
 
     // TODO: Close the directory using closedir()
     // TODO: Check if closedir() failed
+	
+	if(closedir(dir) == -1){
+	perror("Error closing\n");
+	return -1;
+	}
+
 
     // TODO: Print the total count of process directories found
+	printf("Directories found: %d\n",processCounter);
 
-    return 0; // Replace with proper error handling
+    return processCounter;
 }
 
 int read_process_info(const char* pid) {
